@@ -13,6 +13,3 @@
         public DateTime? DataHoraUltimaAlteracao { get; set; }
     }
 }
-
-
-

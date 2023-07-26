@@ -22,6 +22,3 @@ namespace ProdutosApp.Services.Models
         public int? Quantidade { get; set; }
     }
 }
-
-
-
