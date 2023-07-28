@@ -57,7 +57,40 @@ namespace ProdutosApp.Services.Controllers
         [ProducesResponseType(typeof(ProdutosGetModel), 200)]
         public IActionResult Put([FromBody] ProdutosPutModel model)
         {
-            return Ok();
+            try
+            {
+                //consultar o produto no banco de dados através do ID
+                var produtoRepository = new ProdutoRepository();
+                var produto = produtoRepository.GetById(model.Id);
+
+                //verificar se o produto foi encontrado
+                if (produto != null)
+                {
+                    //atualizar os dados do produto
+                    produto.Nome = model.Nome;
+                    produto.Preco = model.Preco;
+                    produto.Quantidade = model.Quantidade;
+                    produto.DataHoraUltimaAlteracao = DateTime.Now;
+
+                    produtoRepository.Update(produto);
+
+                    //copiando os dados do Produto para a classe ProdutosGetModel
+                    var result = EntityToModel(produto);
+
+                    //retornar 200 (OK)
+                    return StatusCode(200, result);
+                }
+                else
+                {
+                    //retornar erro 400 (BAD REQUEST)
+                    return StatusCode(400, new { mensagem = "Produto inválido. Verifique o ID informado." });
+                }
+            }
+            catch (Exception e)
+            {
+                //retornar erro 500 (INTERNAL SERVER ERROR)
+                return StatusCode(500, new { e.Message });
+            }
         }
 
         /// <summary>
@@ -68,7 +101,35 @@ namespace ProdutosApp.Services.Controllers
         [ProducesResponseType(typeof(ProdutosGetModel), 200)]
         public IActionResult Delete(Guid? id)
         {
-            return Ok();
+            try
+            {
+                //buscar o produto através do id
+                var produtoRepository = new ProdutoRepository();
+                var produto = produtoRepository.GetById(id);
+
+                //verificar se o produto foi encontrado
+                if (produto != null)
+                {
+                    //excluindo o produto no banco de dados
+                    produtoRepository.Delete(produto);
+
+                    //copiando os dados do Produto para a classe ProdutosGetModel
+                    var result = EntityToModel(produto);
+
+                    //retornar 200 (OK)
+                    return StatusCode(200, result);
+                }
+                else
+                {
+                    //retornar erro 400 (BAD REQUEST)
+                    return StatusCode(400, new { mensagem = "Produto inválido. Verifique o ID informado." });
+                }
+            }
+            catch (Exception e)
+            {
+                //retornar erro 500 (INTERNAL SERVER ERROR)
+                return StatusCode(500, new { e.Message });
+            }
         }
 
         /// <summary>
@@ -79,14 +140,67 @@ namespace ProdutosApp.Services.Controllers
         [ProducesResponseType(typeof(List<ProdutosGetModel>), 200)]
         public IActionResult GetAll()
         {
-            return Ok();
+            try
+            {
+                //criando uma lista de objetos para retornar a consulta
+                var lista = new List<ProdutosGetModel>();
+
+                //acessar o banco de dados e consultar todos os produtos cadastrados
+                var produtoRepository = new ProdutoRepository();
+                foreach (var item in produtoRepository.GetAll())
+                {
+                    //adicionando cada produto obtido na lista
+                    lista.Add(EntityToModel(item));
+                }
+
+                if (lista.Count > 0)
+                {
+                    //retornando a lista com todos os produtos
+                    return StatusCode(200, lista);
+                }
+                else
+                {
+                    //retornar 204 (NO CONTENT)
+                    return StatusCode(204);
+                }
+            }
+            catch (Exception e)
+            {
+                //retornar erro 500 (INTERNAL SERVER ERROR)
+                return StatusCode(500, new { e.Message });
+            }
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(ProdutosGetModel), 200)]
         public IActionResult GetById(Guid? id)
         {
-            return Ok();
+            try
+            {
+                //consultar o produto no banco de dados através do ID
+                var produtoRepository = new ProdutoRepository();
+                var produto = produtoRepository.GetById(id);
+
+                //verificar se o produto foi encontrado
+                if (produto != null)
+                {
+                    //copiando os dados do Produto para a classe ProdutosGetModel
+                    var result = EntityToModel(produto);
+
+                    //retornar 200 (OK)
+                    return StatusCode(200, result);
+                }
+                else
+                {
+                    //retornar 204 (NO CONTENT)
+                    return StatusCode(204);
+                }
+            }
+            catch (Exception e)
+            {
+                //retornar erro 500 (INTERNAL SERVER ERROR)
+                return StatusCode(500, new { e.Message });
+            }
         }
 
         /// <summary>
